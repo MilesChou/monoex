@@ -6,13 +6,13 @@ Monolog extensions.
 
 ## Use on Laravel
 
-This package implements [Package Discovery](https://laravel.com/docs/7.x/packages#package-discovery), and the following PSR-17 / PSR-18 driver must be register:
+This package implements [Package Discovery](https://laravel.com/docs/7.x/packages#package-discovery), and the following [PSR-17](https://www.php-fig.org/psr/psr-17/) / [PSR-18](https://www.php-fig.org/psr/psr-18/) driver must be register:
 
 * `Psr\Http\Client\ClientInterface`
 * `Psr\Http\Message\RequestFactoryInterface`
 * `Psr\Http\Message\StreamFactoryInterface`
 
-Example, use `laminas/laminas-diactoros` and `symfony/http-client`:
+Example, use [`laminas/laminas-diactoros`](https://packagist.org/packages/laminas/laminas-diactoros) and [`symfony/http-client`](https://packagist.org/packages/symfony/http-client):
 
 ```php
 $app->singleton(RequestFactoryInterface::class, new \Laminas\Diactoros\RequestFactory());
