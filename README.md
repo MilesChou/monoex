@@ -1,6 +1,11 @@
 # Monoex
 
 [![Build Status](https://travis-ci.com/MilesChou/monoex.svg?branch=master)](https://travis-ci.com/MilesChou/monoex)
+[![codecov](https://codecov.io/gh/MilesChou/monoex/branch/master/graph/badge.svg)](https://codecov.io/gh/MilesChou/monoex)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/84689fff058c4666ba901071f59714c1)](https://www.codacy.com/manual/MilesChou/monoex)
+[![Latest Stable Version](https://poser.pugx.org/MilesChou/monoex/v/stable)](https://packagist.org/packages/mileschou/monoex)
+[![Total Downloads](https://poser.pugx.org/MilesChou/monoex/d/total.svg)](https://packagist.org/packages/mileschou/monoex)
+[![License](https://poser.pugx.org/MilesChou/monoex/license)](https://packagist.org/packages/mileschou/monoex)
 
 Monolog extensions.
 
