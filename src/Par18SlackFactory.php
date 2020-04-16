@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MilesChou\Monoex;
 
 use Illuminate\Container\Container;
 use Illuminate\Log\ParsesLogConfiguration;
 use MilesChou\Monoex\Handlers\Psr18SlackWebhookHandler;
+use Monolog\Handler\HandlerInterface;
 use Monolog\Logger as Monolog;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -38,7 +41,7 @@ class Par18SlackFactory
     /**
      * @see https://github.com/laravel/framework/blob/v7.6.2/src/Illuminate/Log/LogManager.php#L291
      */
-    private function createHandler(array $config)
+    private function createHandler(array $config): HandlerInterface
     {
         $handler = new Psr18SlackWebhookHandler(
             $config['url'],
