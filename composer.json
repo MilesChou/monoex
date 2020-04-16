@@ -23,6 +23,10 @@
         "symfony/http-client": "Require ^4.4 | ^5 if need use PSR-18 HTTP client"
     },
     "require-dev": {
+        "illuminate/config": "^5.6 | ^6 | ^7",
+        "illuminate/container": "^5.6 | ^6 | ^7",
+        "illuminate/events": "^5.6 | ^6 | ^7",
+        "illuminate/log": "^5.6 | ^6 | ^7",
         "laminas/laminas-diactoros": "^2.2",
         "mileschou/psr": "^1.1",
         "phpstan/phpstan": "^0.12",
@@ -37,6 +41,13 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MilesChou\\Monoex\\ServiceProvider"
+            ]
         }
     },
     "config": {

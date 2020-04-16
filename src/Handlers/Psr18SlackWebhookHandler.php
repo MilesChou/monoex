@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MilesChou\Monoex;
+namespace MilesChou\Monoex\Handlers;
 
 use Monolog\Handler\SlackWebhookHandler as BaseSlackWebhookHandler;
 use Psr\Http\Client\ClientInterface;
