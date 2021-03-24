@@ -1,6 +1,6 @@
 # Monoex
 
-[![Build Status](https://travis-ci.com/MilesChou/monoex.svg?branch=master)](https://travis-ci.com/MilesChou/monoex)
+[![tests](https://github.com/MilesChou/monoex/actions/workflows/tests.yml/badge.svg)](https://github.com/MilesChou/monoex/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/gh/MilesChou/monoex/branch/master/graph/badge.svg)](https://codecov.io/gh/MilesChou/monoex)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/84689fff058c4666ba901071f59714c1)](https://www.codacy.com/manual/MilesChou/monoex)
 [![Latest Stable Version](https://poser.pugx.org/MilesChou/monoex/v/stable)](https://packagist.org/packages/mileschou/monoex)
@@ -8,6 +8,8 @@
 [![License](https://poser.pugx.org/MilesChou/monoex/license)](https://packagist.org/packages/mileschou/monoex)
 
 Monolog extensions.
+
+Support Laravel 5.7, 5.8, 6.x, 7.x.
 
 ## Use on Laravel
 
