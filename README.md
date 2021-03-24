@@ -9,7 +9,7 @@
 
 Monolog extensions.
 
-Support Laravel 5.7, 5.8, 6.x, 7.x.
+Support PHP 7.1 ~ 8.0 and Laravel 5.7 ~ 8.0.
 
 ## Use on Laravel
 
