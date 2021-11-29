@@ -27,6 +27,13 @@ class Psr18SlackWebhookHandler extends BaseSlackWebhookHandler
     private $streamFactory;
 
     /**
+     * Don't throw exception when call API
+     *
+     * @var bool
+     */
+    private $silent = true;
+
+    /**
      * @param ClientInterface $httpClient
      * @param RequestFactoryInterface $requestFactory
      * @param StreamFactoryInterface $streamFactory
@@ -45,6 +52,14 @@ class Psr18SlackWebhookHandler extends BaseSlackWebhookHandler
     }
 
     /**
+     * @param bool $silent
+     */
+    public function setSilent(bool $silent): void
+    {
+        $this->silent = $silent;
+    }
+
+    /**
      * Overload for custom option of sending request
      *
      * @param array<mixed> $record
@@ -58,6 +73,12 @@ class Psr18SlackWebhookHandler extends BaseSlackWebhookHandler
             ->withHeader('Content-type', 'application/json')
             ->withBody($this->streamFactory->createStream($postString));
 
-        $this->httpClient->sendRequest($request);
+        try {
+            $this->httpClient->sendRequest($request);
+        } catch (\Throwable $e) {
+            if (!$this->silent) {
+                throw $e;
+            }
+        }
     }
 }

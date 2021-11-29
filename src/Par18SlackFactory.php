@@ -31,7 +31,7 @@ class Par18SlackFactory
         $this->app = $app;
     }
 
-    public function __invoke(array $config)
+    public function __invoke(array $config): Monolog
     {
         return new Monolog($this->parseChannel($config), [
             $this->prepareHandler($this->createHandler($config), $config),
@@ -39,7 +39,7 @@ class Par18SlackFactory
     }
 
     /**
-     * @see https://github.com/laravel/framework/blob/v7.6.2/src/Illuminate/Log/LogManager.php#L291
+     * @see https://github.com/laravel/framework/blob/v8.73.2/src/Illuminate/Log/LogManager.php#L318-L334
      */
     private function createHandler(array $config): HandlerInterface
     {
