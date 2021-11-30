@@ -74,11 +74,14 @@ class Psr18SlackWebhookHandler extends BaseSlackWebhookHandler
             ->withBody($this->streamFactory->createStream($postString));
 
         try {
+            // TODO: https://api.slack.com/docs/rate-limits
             $this->httpClient->sendRequest($request);
         } catch (\Throwable $e) {
-            if (!$this->silent) {
-                throw $e;
+            if ($this->silent) {
+                return;
             }
+
+            throw $e;
         }
     }
 }
