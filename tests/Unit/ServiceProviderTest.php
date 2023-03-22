@@ -7,6 +7,7 @@ namespace Tests\Unit;
 use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
 use Illuminate\Events\EventServiceProvider;
+use Illuminate\Foundation\Application;
 use Illuminate\Log\Logger;
 use Illuminate\Log\LogManager;
 use Illuminate\Log\LogServiceProvider;
@@ -22,16 +23,13 @@ use Tests\TestCase;
 
 class ServiceProviderTest extends TestCase
 {
-    /**
-     * @var Psr18SlackWebhookHandler
-     */
-    private $container;
+    private Application $container;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->container = new Container();
+        $this->container = new Application();
         $this->container->instance('config', new Repository());
         $this->container->instance(RequestFactoryInterface::class, new RequestFactory());
         $this->container->instance(StreamFactoryInterface::class, new StreamFactory());
@@ -40,13 +38,6 @@ class ServiceProviderTest extends TestCase
         (new EventServiceProvider($this->container))->register();
 
         $this->container->alias('log', LogManager::class);
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->container = null;
     }
 
     /**

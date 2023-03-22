@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MilesChou\Monoex;
 
 use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Handler\FormattableHandlerInterface;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Logger as Monolog;
@@ -15,7 +16,14 @@ use Monolog\Logger as Monolog;
 trait LogManagerTrait
 {
     /**
-     * @see https://github.com/laravel/framework/blob/v8.73.2/src/Illuminate/Log/LogManager.php#L449-L452
+     * @see https://github.com/laravel/framework/blob/v10.4.1/src/Illuminate/Log/LogManager.php#L64
+     *
+     * @var string
+     */
+    protected string $dateFormat = 'Y-m-d H:i:s';
+
+    /**
+     * @see https://github.com/laravel/framework/blob/v10.4.1/src/Illuminate/Log/LogManager.php#L523
      */
     protected function getFallbackChannelName()
     {
@@ -23,21 +31,27 @@ trait LogManagerTrait
     }
 
     /**
-     * @see https://github.com/laravel/framework/blob/v8.73.2/src/Illuminate/Log/LogManager.php#L417-L430
+     * @see https://github.com/laravel/framework/blob/v10.4.1/src/Illuminate/Log/LogManager.php#L442
      */
-    protected function prepareHandler(HandlerInterface $handler, array $config = [])
+    protected function prepareHandler(HandlerInterface $handler, array $config = []): HandlerInterface
     {
-        $isHandlerFormattable = false;
-
-        if (Monolog::API === 1) {
-            $isHandlerFormattable = true;
-        } elseif (Monolog::API === 2 && $handler instanceof FormattableHandlerInterface) {
-            $isHandlerFormattable = true;
+        if (isset($config['action_level'])) {
+            $handler = new FingersCrossedHandler(
+                $handler,
+                $this->actionLevel($config),
+                0,
+                true,
+                $config['stop_buffering'] ?? true
+            );
         }
 
-        if ($isHandlerFormattable && ! isset($config['formatter'])) {
+        if (! $handler instanceof FormattableHandlerInterface) {
+            return $handler;
+        }
+
+        if (! isset($config['formatter'])) {
             $handler->setFormatter($this->formatter());
-        } elseif ($isHandlerFormattable && $config['formatter'] !== 'default') {
+        } elseif ($config['formatter'] !== 'default') {
             $handler->setFormatter($this->app->make($config['formatter'], $config['formatter_with'] ?? []));
         }
 
@@ -45,11 +59,11 @@ trait LogManagerTrait
     }
 
     /**
-     * @see https://github.com/laravel/framework/blob/v7.6.2/src/Illuminate/Log/LogManager.php#L414
+     * @see https://github.com/laravel/framework/blob/v10.4.1/src/Illuminate/Log/LogManager.php#L472
      */
     protected function formatter()
     {
-        return tap(new LineFormatter(null, 'Y-m-d H:i:s', true, true), function ($formatter) {
+        return tap(new LineFormatter(null, $this->dateFormat, true, true), function ($formatter) {
             $formatter->includeStacktraces();
         });
     }

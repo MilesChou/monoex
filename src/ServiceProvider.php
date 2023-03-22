@@ -28,7 +28,7 @@ class ServiceProvider extends BaseServiceProvider
     private function registerLoggerDriver(LogManager $logManager): void
     {
         $logManager->extend('psr18slack', function (Container $app, array $config) {
-            return (new Par18SlackFactory($app))->__invoke($config);
+            return (new Par18SlackFactory($app))($config);
         });
     }
 }

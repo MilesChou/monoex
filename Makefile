@@ -17,7 +17,7 @@ check:
 	php vendor/bin/phpcs
 
 test: clean check
-	phpdbg -qrr vendor/bin/phpunit
+	php -d xdebug.mode=coverage vendor/bin/phpunit
 
 coverage: test
 	@if [ "`uname`" = "Darwin" ]; then open build/coverage/index.html; fi

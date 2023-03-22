@@ -18,10 +18,7 @@ class Par18SlackFactory
     use ParsesLogConfiguration;
     use LogManagerTrait;
 
-    /**
-     * @var Container
-     */
-    private $app;
+    private Container $app;
 
     /**
      * @param Container $app

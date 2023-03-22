@@ -5,33 +5,36 @@ declare(strict_types=1);
 namespace MilesChou\Monoex\Handlers;
 
 use Monolog\Handler\SlackWebhookHandler as BaseSlackWebhookHandler;
+use Monolog\LogRecord;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Throwable;
 
 class Psr18SlackWebhookHandler extends BaseSlackWebhookHandler
 {
     /**
      * @var ClientInterface
      */
-    private $httpClient;
+    private ClientInterface $httpClient;
 
     /**
      * @var RequestFactoryInterface
      */
-    private $requestFactory;
+    private RequestFactoryInterface $requestFactory;
 
     /**
      * @var StreamFactoryInterface
      */
-    private $streamFactory;
+    private StreamFactoryInterface $streamFactory;
 
     /**
      * Don't throw exception when call API
      *
      * @var bool
      */
-    private $silent = true;
+    private bool $silent = true;
 
     /**
      * @param ClientInterface $httpClient
@@ -62,9 +65,11 @@ class Psr18SlackWebhookHandler extends BaseSlackWebhookHandler
     /**
      * Overload for custom option of sending request
      *
-     * @param array<mixed> $record
+     * @param LogRecord $record
+     * @throws ClientExceptionInterface
+     * @throws Throwable
      */
-    protected function write(array $record): void
+    protected function write(LogRecord $record): void
     {
         $postData = $this->getSlackRecord()->getSlackData($record);
         $postString = (string)json_encode($postData);
@@ -76,7 +81,7 @@ class Psr18SlackWebhookHandler extends BaseSlackWebhookHandler
         try {
             // TODO: https://api.slack.com/docs/rate-limits
             $this->httpClient->sendRequest($request);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             if ($this->silent) {
                 return;
             }

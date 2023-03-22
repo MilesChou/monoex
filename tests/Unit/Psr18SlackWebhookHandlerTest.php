@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use DateTimeImmutable;
 use MilesChou\Monoex\Handlers\Psr18SlackWebhookHandler;
 use MilesChou\Psr\Http\Client\Testing\MockClient;
 use MilesChou\Psr\Http\Message\RequestFactory;
 use MilesChou\Psr\Http\Message\StreamFactory;
 use Monolog\Formatter\JsonFormatter;
+use Monolog\Level;
+use Monolog\LogRecord;
 use Tests\TestCase;
 
 class Psr18SlackWebhookHandlerTest extends TestCase
@@ -47,16 +50,13 @@ class Psr18SlackWebhookHandlerTest extends TestCase
         $this->assertTrue($mockClient->hasRequests());
     }
 
-    /**
-     * @return array
-     */
-    private function createRecord(): array
+    private function createRecord(): LogRecord
     {
-        return [
-            'level' => PHP_INT_MAX,
-            'level_name' => 'max',
-            'message' => 'hello',
-            'datetime' => new \DateTime(),
-        ];
+        return new LogRecord(
+            new DateTimeImmutable(),
+            'test_channel',
+            Level::Emergency,
+            'hello',
+        );
     }
 }
