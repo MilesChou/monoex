@@ -25,6 +25,17 @@ class TeamsWebhookHandler extends AbstractProcessingHandler
 
     private bool $silent = true;
 
+    private array $loggerColour = [
+        'EMERGENCY' => '721C24',
+        'ALERT' => 'AF2432',
+        'CRITICAL' => 'FF0000',
+        'ERROR' => 'FF8000',
+        'WARNING' => 'FFEEBA',
+        'NOTICE' => 'B8DAFF',
+        'INFO' => 'BEE5EB',
+        'DEBUG' => 'C3E6CB',
+    ];
+
     public function __construct(
         private readonly string $webhookUrl,
         $level = MonologLogger::DEBUG,
@@ -62,22 +73,20 @@ class TeamsWebhookHandler extends AbstractProcessingHandler
             $facts[] = ['name' => $name, 'value' => $value];
         }
         $facts = array_merge($facts, [[
-            'name'  => 'Sent Date',
+            'name' => 'Sent Date',
             'value' => $record['datetime'] !== null ?
                 $record['datetime']->format('Y-m-d H:i:s') :
                 date('Y-m-d H:i:s'),
         ]]);
 
-        $loggerColour = new LoggerColour($record['level_name']);
-
         $loggerMessage = new LoggerMessage([
-            'summary'    => $record['level_name'],
-            'themeColor' => (string)$loggerColour,
-            'sections'   => [[
-                'activityTitle'    => 'Message',
+            'summary' => $record['level_name'],
+            'themeColor' => $this->loggerColour[$record['level_name']],
+            'sections' => [[
+                'activityTitle' => 'Message',
                 'activitySubtitle' => $record['message'],
-                'facts'            => $facts,
-                'markdown'         => true
+                'facts' => $facts,
+                'markdown' => true
             ]]
         ]);
 
