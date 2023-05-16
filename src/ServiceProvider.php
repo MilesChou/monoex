@@ -30,5 +30,9 @@ class ServiceProvider extends BaseServiceProvider
         $logManager->extend('psr18slack', function (Container $app, array $config) {
             return (new Par18SlackFactory($app))($config);
         });
+
+        $logManager->extend('psr18teams', function (Container $app, array $config) {
+            return (new Psr18TeamsFactory($app))($config);
+        });
     }
 }
