@@ -66,30 +66,10 @@ class TeamsWebhookHandler extends AbstractProcessingHandler
     {
         $facts = [];
         foreach ($record['context'] as $name => $value) {
-            // value must be a string.
-            if (is_array($value) || is_object($value)) {
-                $value = json_encode($value);
-            }
-
-            // skip if value is not a string.
-            if (!is_string($value)) {
-                continue;
-            }
-
-            $facts[] = ['name' => $name, 'value' => $value];
+            $facts[] = $this->formFactsValue($name, $value);
         }
         foreach ($record['extra'] as $name => $value) {
-            // value must be a string.
-            if (is_array($value) || is_object($value)) {
-                $value = json_encode($value);
-            }
-
-            // skip if value is not a string.
-            if (!is_string($value)) {
-                continue;
-            }
-
-            $facts[] = ['name' => $name, 'value' => $value];
+            $facts[] = $this->formFactsValue($name, $value);
         }
         $facts = array_merge($facts, [[
             'name' => 'Sent Date',
@@ -134,5 +114,23 @@ class TeamsWebhookHandler extends AbstractProcessingHandler
             }
             throw $e;
         }
+    }
+
+    public function formFactsValue(mixed $name, mixed $value): array|null
+    {
+        if (is_array($value) || is_object($value)) {
+            $value = json_encode($value);
+        }
+
+        if (!is_string($value) && !is_numeric($value)) {
+            $value = $this->getInvalidFormatMessage($value);
+        }
+
+        return ['name' => $name, 'value' => $value];
+    }
+
+    private function getInvalidFormatMessage(mixed $value): string
+    {
+        return 'Invalid value: value must be a string or numeric, but get ' . gettype($value);
     }
 }
