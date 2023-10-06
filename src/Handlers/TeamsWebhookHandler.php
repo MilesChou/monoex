@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MilesChou\Monoex\Handlers;
 
-use MilesChou\Monoex\Teams\LoggerColour;
 use MilesChou\Monoex\Teams\LoggerMessage;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger as MonologLogger;
@@ -67,9 +66,29 @@ class TeamsWebhookHandler extends AbstractProcessingHandler
     {
         $facts = [];
         foreach ($record['context'] as $name => $value) {
+            // value must be a string.
+            if (is_array($value) || is_object($value)) {
+                $value = json_encode($value);
+            }
+
+            // skip if value is not a string.
+            if (!is_string($value)) {
+                continue;
+            }
+
             $facts[] = ['name' => $name, 'value' => $value];
         }
         foreach ($record['extra'] as $name => $value) {
+            // value must be a string.
+            if (is_array($value) || is_object($value)) {
+                $value = json_encode($value);
+            }
+
+            // skip if value is not a string.
+            if (!is_string($value)) {
+                continue;
+            }
+
             $facts[] = ['name' => $name, 'value' => $value];
         }
         $facts = array_merge($facts, [[
