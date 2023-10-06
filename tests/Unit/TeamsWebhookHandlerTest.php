@@ -123,8 +123,9 @@ class TeamsWebhookHandlerTest extends TestCase
      */
     public function shouldShowMessageWhenValueIsTrue(): void
     {
+        $expected = ['name' => 'test', 'value' => 'Invalid value: value must be a string or numeric, but get boolean'];
         $actual = $this->target->formFactsValue('test', true);
-        $this->assertSame(['name' => 'test', 'value' => 'Invalid value: value must be a string or numeric, but get boolean'], $actual);
+        $this->assertSame($expected, $actual);
     }
 
     /**
@@ -132,8 +133,9 @@ class TeamsWebhookHandlerTest extends TestCase
      */
     public function shouldShowMessageWhenValueIsFalse(): void
     {
+        $expected = ['name' => 'test', 'value' => 'Invalid value: value must be a string or numeric, but get boolean'];
         $actual = $this->target->formFactsValue('test', false);
-        $this->assertSame(['name' => 'test', 'value' => 'Invalid value: value must be a string or numeric, but get boolean'], $actual);
+        $this->assertSame($expected, $actual);
     }
 
     /**
@@ -141,7 +143,8 @@ class TeamsWebhookHandlerTest extends TestCase
      */
     public function shouldShowMessageWhenValueIsNull(): void
     {
+        $expected = ['name' => 'test', 'value' => 'Invalid value: value must be a string or numeric, but get NULL'];
         $actual = $this->target->formFactsValue('test', null);
-        $this->assertSame(['name' => 'test', 'value' => 'Invalid value: value must be a string or numeric, but get NULL'], $actual);
+        $this->assertSame($expected, $actual);
     }
 }
