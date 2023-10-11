@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MilesChou\Monoex\Handlers;
 
-use MilesChou\Monoex\Teams\LoggerColour;
 use MilesChou\Monoex\Teams\LoggerMessage;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger as MonologLogger;
@@ -67,10 +66,10 @@ class TeamsWebhookHandler extends AbstractProcessingHandler
     {
         $facts = [];
         foreach ($record['context'] as $name => $value) {
-            $facts[] = ['name' => $name, 'value' => $value];
+            $facts[] = $this->formFactsValue($name, $value);
         }
         foreach ($record['extra'] as $name => $value) {
-            $facts[] = ['name' => $name, 'value' => $value];
+            $facts[] = $this->formFactsValue($name, $value);
         }
         $facts = array_merge($facts, [[
             'name' => 'Sent Date',
@@ -115,5 +114,23 @@ class TeamsWebhookHandler extends AbstractProcessingHandler
             }
             throw $e;
         }
+    }
+
+    public function formFactsValue(mixed $name, mixed $value): array
+    {
+        if (is_array($value) || is_object($value)) {
+            $value = json_encode($value);
+        }
+
+        if (!is_string($value) && !is_numeric($value)) {
+            $value = $this->getInvalidFormatMessage($value);
+        }
+
+        return ['name' => $name, 'value' => $value];
+    }
+
+    private function getInvalidFormatMessage(mixed $value): string
+    {
+        return 'Invalid value: value must be a string or numeric, but get ' . gettype($value);
     }
 }
