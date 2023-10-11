@@ -116,7 +116,7 @@ class TeamsWebhookHandler extends AbstractProcessingHandler
         }
     }
 
-    public function formFactsValue(mixed $name, mixed $value): array|null
+    public function formFactsValue(mixed $name, mixed $value): array
     {
         if (is_array($value) || is_object($value)) {
             $value = json_encode($value);
