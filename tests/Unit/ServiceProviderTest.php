@@ -56,7 +56,7 @@ class ServiceProviderTest extends TestCase
         ]);
 
         $target = new ServiceProvider($this->container);
-        $target->register();
+        $target->boot();
 
         /** @var LogManager $actual */
         $actual = $this->container->make(LogManager::class);
@@ -83,7 +83,7 @@ class ServiceProviderTest extends TestCase
         ]);
 
         $target = new ServiceProvider($this->container);
-        $target->register();
+        $target->boot();
 
         /** @var LogManager $actual */
         $actual = $this->container->make(LogManager::class);
