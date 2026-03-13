@@ -46,7 +46,7 @@ class TeamsWebhookHandler extends AbstractProcessingHandler
     public function setDriver(
         ClientInterface $httpClient,
         RequestFactoryInterface $requestFactory,
-        StreamFactoryInterface $streamFactory
+        StreamFactoryInterface $streamFactory,
     ): static {
         $this->httpClient = $httpClient;
         $this->requestFactory = $requestFactory;
@@ -64,29 +64,38 @@ class TeamsWebhookHandler extends AbstractProcessingHandler
 
     protected function getMessage(LogRecord $record)
     {
+        $formatted = json_decode($record->formatted, true);
+
+        $context = $formatted['context'] ?? $record['context'];
+        $extra = $formatted['extra'] ?? $record['extra'];
+
         $facts = [];
-        foreach ($record['context'] as $name => $value) {
+        foreach ($context as $name => $value) {
             $facts[] = $this->formFactsValue($name, $value);
         }
-        foreach ($record['extra'] as $name => $value) {
+        foreach ($extra as $name => $value) {
             $facts[] = $this->formFactsValue($name, $value);
         }
-        $facts = array_merge($facts, [[
-            'name' => 'Sent Date',
-            'value' => $record['datetime'] !== null ?
-                $record['datetime']->format('Y-m-d H:i:s') :
-                date('Y-m-d H:i:s'),
-        ]]);
+        $facts = array_merge($facts, [
+            [
+                'name' => 'Sent Date',
+                'value' => $record['datetime'] !== null ?
+                    $record['datetime']->format('Y-m-d H:i:s') :
+                    date('Y-m-d H:i:s'),
+            ],
+        ]);
 
         $loggerMessage = new LoggerMessage([
             'summary' => $record['level_name'],
             'themeColor' => $this->loggerColour[$record['level_name']],
-            'sections' => [[
-                'activityTitle' => 'Message',
-                'activitySubtitle' => $record['message'],
-                'facts' => $facts,
-                'markdown' => true
-            ]]
+            'sections' => [
+                [
+                    'activityTitle' => 'Message',
+                    'activitySubtitle' => $record['message'],
+                    'facts' => $facts,
+                    'markdown' => true,
+                ],
+            ],
         ]);
 
         return $loggerMessage->jsonSerialize();
