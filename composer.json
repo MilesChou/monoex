@@ -24,10 +24,10 @@
         "symfony/http-client": "Require ^4.4 | ^5 if need use PSR-18 HTTP client"
     },
     "require-dev": {
-        "laminas/laminas-diactoros": "^2.2",
-        "laravel/framework": "^10",
-        "mileschou/psr": "^1.1",
-        "phpunit/phpunit": "^10",
+        "laminas/laminas-diactoros": "^2.2 | ^3",
+        "laravel/framework": "^10 | ^11 | ^12 | ^13",
+        "mileschou/psr": "^1.1 | ^2",
+        "phpunit/phpunit": "^10 | ^11",
         "squizlabs/php_codesniffer": "^3.7"
     },
     "autoload": {

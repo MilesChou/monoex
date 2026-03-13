@@ -101,7 +101,7 @@ class TeamsWebhookHandlerTest extends TestCase
         $this->assertSame(['name' => 'test', 'value' => json_encode($value)], $actual);
     }
 
-    public function provideArrayValue(): iterable
+    public static function provideArrayValue(): iterable
     {
         yield 'array' => [[1,2,3,'hi']];
         yield 'key-value pair array' => [['whatever' => 'test']];
