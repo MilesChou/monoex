@@ -12,6 +12,7 @@ use MilesChou\Psr\Http\Message\StreamFactory;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Level;
 use Monolog\LogRecord;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class Psr18SlackWebhookHandlerTest extends TestCase
@@ -36,9 +37,7 @@ class Psr18SlackWebhookHandlerTest extends TestCase
         $this->target = null;
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldBeOkay(): void
     {
         $mockClient = MockClient::createAlwaysReturnEmptyResponse();
