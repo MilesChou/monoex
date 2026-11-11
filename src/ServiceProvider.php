@@ -27,5 +27,9 @@ class ServiceProvider extends BaseServiceProvider
         $logManager->extend('psr18teams', function (Container $app, array $config) {
             return (new Psr18TeamsFactory($app))($config);
         });
+
+        $logManager->extend('psr18googlechat', function (Container $app, array $config) {
+            return (new Psr18GoogleChatFactory($app))($config);
+        });
     }
 }

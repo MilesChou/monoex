@@ -13,6 +13,7 @@ use Illuminate\Log\LogManager;
 use Illuminate\Log\LogServiceProvider;
 use Laminas\Diactoros\RequestFactory;
 use Laminas\Diactoros\StreamFactory;
+use MilesChou\Monoex\Handlers\GoogleChatWebhookHandler;
 use MilesChou\Monoex\Handlers\Psr18SlackWebhookHandler;
 use MilesChou\Monoex\Handlers\TeamsWebhookHandler;
 use MilesChou\Monoex\ServiceProvider;
@@ -89,5 +90,29 @@ class ServiceProviderTest extends TestCase
         $driver = $actual->driver('some');
 
         $this->assertInstanceOf(TeamsWebhookHandler::class, $driver->getLogger()->popHandler());
+    }
+
+    #[Test]
+    public function shouldRegisterGoogleChatDriverByServiceProvider(): void
+    {
+        $this->container->instance(ClientInterface::class, MockClient::createAlwaysReturnEmptyResponse());
+
+        /** @var Repository $config */
+        $config = $this->container->make('config');
+        $config->set('logging.channels.some', [
+            'driver' => 'psr18googlechat',
+            'url' => 'somewhere',
+        ]);
+
+        $target = new ServiceProvider($this->container);
+        $target->boot();
+
+        /** @var LogManager $actual */
+        $actual = $this->container->make(LogManager::class);
+
+        /** @var Logger $driver */
+        $driver = $actual->driver('some');
+
+        $this->assertInstanceOf(GoogleChatWebhookHandler::class, $driver->getLogger()->popHandler());
     }
 }
