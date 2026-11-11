@@ -12,6 +12,8 @@ use MilesChou\Psr\Http\Message\StreamFactory;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Level;
 use Monolog\LogRecord;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TeamsWebhookHandlerTest extends TestCase
@@ -33,9 +35,7 @@ class TeamsWebhookHandlerTest extends TestCase
         $this->target = null;
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldBeOkay(): void
     {
         $mockClient = MockClient::createAlwaysReturnEmptyResponse();
@@ -57,10 +57,8 @@ class TeamsWebhookHandlerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider provideNumericValue
-     */
+    #[Test]
+    #[DataProvider('provideNumericValue')]
     public function shouldBeOkayWhenValueIsNumeric(mixed $value): void
     {
         $actual = $this->target->formFactsValue('test', $value);
@@ -81,19 +79,15 @@ class TeamsWebhookHandlerTest extends TestCase
         yield 'string 負數' => ['-123456.654321'];
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldBeOkayWhenValueIsAString(): void
     {
         $actual = $this->target->formFactsValue('test', 'hello');
         $this->assertSame(['name' => 'test', 'value' => 'hello'], $actual);
     }
 
-    /**
-     * @test
-     * @dataProvider provideArrayValue
-     */
+    #[Test]
+    #[DataProvider('provideArrayValue')]
     public function shouldBeOkayWhenValueIsAArray(array $value): void
     {
         $value = ['whatever' => 'test', 123];
@@ -108,9 +102,7 @@ class TeamsWebhookHandlerTest extends TestCase
         yield 'mixed' => [['whatever' => 'test', 123, 'hi']];
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldBeOkayWhenValueIsAnObject(): void
     {
         $value = (object) ['whatever' => 'test'];
@@ -118,9 +110,7 @@ class TeamsWebhookHandlerTest extends TestCase
         $this->assertSame(['name' => 'test', 'value' => json_encode($value)], $actual);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldShowMessageWhenValueIsTrue(): void
     {
         $expected = ['name' => 'test', 'value' => 'Invalid value: value must be a string or numeric, but get boolean'];
@@ -128,9 +118,7 @@ class TeamsWebhookHandlerTest extends TestCase
         $this->assertSame($expected, $actual);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldShowMessageWhenValueIsFalse(): void
     {
         $expected = ['name' => 'test', 'value' => 'Invalid value: value must be a string or numeric, but get boolean'];
@@ -138,9 +126,7 @@ class TeamsWebhookHandlerTest extends TestCase
         $this->assertSame($expected, $actual);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldShowMessageWhenValueIsNull(): void
     {
         $expected = ['name' => 'test', 'value' => 'Invalid value: value must be a string or numeric, but get NULL'];
