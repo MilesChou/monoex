@@ -53,6 +53,58 @@ return [
 ];
 ```
 
+### Google Chat
+
+The `psr18googlechat` driver sends each log record to a [Google Chat incoming webhook](https://developers.google.com/workspace/chat/quickstart/webhooks) as a card message.
+
+```php
+return [
+    'channels' => [
+        'google_chat' => [
+            'driver' => 'psr18googlechat',
+            // The webhook URL contains the key and token, keep it in env
+            'url' => env('LOG_GOOGLE_CHAT_WEBHOOK_URL'),
+            'level' => 'error',
+            // Optional. When false, a failed request throws an exception. Default: true
+            'silent' => true,
+            // Optional. Other message lines after this count are collapsed behind "Show more". Default: 5
+            'collapse_message_lines' => 5,
+            // Optional. Context / extra fields after this count are collapsed, counted per section. Default: 3
+            'collapse_fields' => 3,
+        ],
+    ],
+];
+```
+
+Card layout, from top to bottom (Google Chat draws a divider between sections):
+
+| Section | Content | Collapse rule |
+|---|---|---|
+| Title | The first line of the log message in bold. Small text below it shows the level with an icon, the channel name and the log date, for example `🔥 ERROR · production · 2026-11-11 07:01:24` | Never collapsed |
+| Other lines | The other lines of the log message | Lines after the first `collapse_message_lines` lines (default 5) are collapsed behind "Show more" |
+| Context | One `key: value` line per context field, with a bold key | Fields after the first `collapse_fields` fields (default 3) are collapsed behind "Show more" |
+| Extra | One `key: value` line per extra field, with a bold key | Fields after the first `collapse_fields` fields (default 3) are collapsed behind "Show more" |
+
+* A section without content is not shown.
+* Leading and trailing line breaks of the log message are ignored. An empty log message is shown as `(empty message)`.
+* Notifications show the level and the first line of the log message, for example `🔥 ERROR: Something failed`.
+* The card header is not used, because Google Chat cannot make the header title bold and removes text in angle brackets from it.
+
+Message size rules:
+
+* Each context / extra value is truncated to 255 characters.
+* The whole message is limited to 32,000 bytes, the maximum size defined by Google Chat. The log message uses the remaining space and is truncated when it does not fit. When the fields alone exceed the limit, fields are omitted from the end.
+* A card shows at most 100 widgets, so at most 96 fields are shown. The other fields are omitted.
+
+Failure handling:
+
+* A failed request (network error or non-2xx response, such as `429 Too Many Requests`) is not retried.
+* When `silent` is true, the failure is written to the PHP error log (`error_log()`) with the HTTP status and the log level.
+* When `silent` is false, a `RuntimeException` is thrown.
+* The `key` and `token` of the webhook URL are masked as `***` in both cases.
+
+Google Chat accepts 1 request per second per space. Requests over this limit are rejected with HTTP 429.
+
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
