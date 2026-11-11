@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use DateTimeImmutable;
+use InvalidArgumentException;
 use MilesChou\Monoex\Handlers\GoogleChatWebhookHandler;
 use MilesChou\Psr\Http\Client\Testing\MockClient;
 use MilesChou\Psr\Http\Message\RequestFactory;
@@ -151,6 +152,36 @@ class GoogleChatWebhookHandlerTest extends TestCase
     {
         yield 'at limit: 5 other lines, 3 context, 3 extra' => [5, 3, false];
         yield 'over limit: 6 other lines, 4 context, 4 extra' => [6, 4, true];
+    }
+
+    #[Test]
+    public function shouldCollapseByConfiguredLimits(): void
+    {
+        $target = new GoogleChatWebhookHandler(self::WEBHOOK_URL, Level::Debug, true, 2, 1);
+
+        $payload = $target->getMessage($this->createRecord("title\nline1\nline2\nline3", ['a' => 1, 'b' => 2]));
+
+        [, $other, $context] = $payload['cardsV2'][0]['card']['sections'];
+        $this->assertSame('line1<br>line2', $other['widgets'][0]['textParagraph']['text']);
+        $this->assertSame('line3', $other['widgets'][1]['textParagraph']['text']);
+        $this->assertTrue($other['collapsible']);
+        $this->assertTrue($context['collapsible']);
+        $this->assertSame(1, $context['uncollapsibleWidgetsCount']);
+    }
+
+    #[Test]
+    #[DataProvider('provideInvalidCollapseLimits')]
+    public function shouldRejectCollapseLimitsBelowOne(int $messageLines, int $fields): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new GoogleChatWebhookHandler(self::WEBHOOK_URL, Level::Debug, true, $messageLines, $fields);
+    }
+
+    public static function provideInvalidCollapseLimits(): iterable
+    {
+        yield 'message lines is 0' => [0, 3];
+        yield 'fields is 0' => [5, 0];
     }
 
     #[Test]

@@ -35,6 +35,8 @@ class Psr18GoogleChatFactory
             $config['url'],
             $this->level($config),
             $config['bubble'] ?? true,
+            $config['collapse_message_lines'] ?? 5,
+            $config['collapse_fields'] ?? 3,
         );
 
         $handler->setSilent($config['silent'] ?? true);

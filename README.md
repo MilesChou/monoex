@@ -67,6 +67,10 @@ return [
             'level' => 'error',
             // Optional. When false, a failed request throws an exception. Default: true
             'silent' => true,
+            // Optional. Other message lines after this count are collapsed behind "Show more". Default: 5
+            'collapse_message_lines' => 5,
+            // Optional. Context / extra fields after this count are collapsed, counted per section. Default: 3
+            'collapse_fields' => 3,
         ],
     ],
 ];
@@ -77,9 +81,9 @@ Card layout, from top to bottom (Google Chat draws a divider between sections):
 | Section | Content | Collapse rule |
 |---|---|---|
 | Title | The first line of the log message in bold. Small text below it shows the level with an icon, the channel name and the log date, for example `🔥 ERROR · production · 2026-11-11 07:01:24` | Never collapsed |
-| Other lines | The other lines of the log message | Lines after the 5th are collapsed behind "Show more" |
-| Context | One `key: value` line per context field, with a bold key | Fields after the 3rd are collapsed behind "Show more" |
-| Extra | One `key: value` line per extra field, with a bold key | Fields after the 3rd are collapsed behind "Show more" |
+| Other lines | The other lines of the log message | Lines after the first `collapse_message_lines` lines (default 5) are collapsed behind "Show more" |
+| Context | One `key: value` line per context field, with a bold key | Fields after the first `collapse_fields` fields (default 3) are collapsed behind "Show more" |
+| Extra | One `key: value` line per extra field, with a bold key | Fields after the first `collapse_fields` fields (default 3) are collapsed behind "Show more" |
 
 * A section without content is not shown.
 * Leading and trailing line breaks of the log message are ignored. An empty log message is shown as `(empty message)`.

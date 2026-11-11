@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MilesChou\Monoex\Handlers;
 
+use InvalidArgumentException;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
@@ -47,16 +48,6 @@ class GoogleChatWebhookHandler extends AbstractProcessingHandler
      */
     private const MAX_FIELD_WIDGETS = 100 - 4;
 
-    /**
-     * Other message lines after this count are collapsed behind the "Show more" control.
-     */
-    private const COLLAPSE_MESSAGE_LINES = 5;
-
-    /**
-     * Context and extra fields after this count are collapsed, counted per section.
-     */
-    private const COLLAPSE_FIELDS = 3;
-
     private const EMPTY_MESSAGE = '(empty message)';
 
     private const TRUNCATED_SUFFIX = '…(truncated)';
@@ -89,11 +80,23 @@ class GoogleChatWebhookHandler extends AbstractProcessingHandler
      */
     private bool $silent = true;
 
+    /**
+     * @param int $collapseMessageLines Other message lines after this count are collapsed behind
+     *                                  the "Show more" control
+     * @param int $collapseFields Context and extra fields after this count are collapsed, counted
+     *                            per section
+     */
     public function __construct(
         private readonly string $webhookUrl,
         int|string|Level $level = Level::Debug,
         bool $bubble = true,
+        private readonly int $collapseMessageLines = 5,
+        private readonly int $collapseFields = 3,
     ) {
+        if ($collapseMessageLines < 1 || $collapseFields < 1) {
+            throw new InvalidArgumentException('Collapse limits must be at least 1');
+        }
+
         parent::__construct($level, $bubble);
     }
 
@@ -271,8 +274,8 @@ class GoogleChatWebhookHandler extends AbstractProcessingHandler
             return $sections;
         }
 
-        $visible = array_slice($otherLines, 0, self::COLLAPSE_MESSAGE_LINES);
-        $collapsed = array_slice($otherLines, self::COLLAPSE_MESSAGE_LINES);
+        $visible = array_slice($otherLines, 0, $this->collapseMessageLines);
+        $collapsed = array_slice($otherLines, $this->collapseMessageLines);
 
         $sections[] = $this->buildSection(
             null,
@@ -304,7 +307,7 @@ class GoogleChatWebhookHandler extends AbstractProcessingHandler
 
         $sections = [];
         foreach ($groups as $header => $widgets) {
-            $sections[] = $this->buildSection($header, $widgets, self::COLLAPSE_FIELDS);
+            $sections[] = $this->buildSection($header, $widgets, $this->collapseFields);
         }
 
         if ($omitted > 0) {
