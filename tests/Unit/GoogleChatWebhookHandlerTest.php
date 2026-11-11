@@ -313,6 +313,20 @@ class GoogleChatWebhookHandlerTest extends TestCase
     }
 
     #[Test]
+    public function shouldTruncateInvalidUtf8FieldValueByBytes(): void
+    {
+        $target = $this->createHandler(MockClient::createAlwaysReturnEmptyResponse());
+
+        $payload = $target->getMessage($this->createRecord('hello', ['field' => "\xFF" . str_repeat('x', 300)]));
+
+        // The invalid byte is replaced with U+FFFD when the value is escaped for the card
+        $this->assertSame(
+            "<b>field</b>: \u{FFFD}" . str_repeat('x', 254) . '…(truncated)',
+            $this->firstFieldText($payload),
+        );
+    }
+
+    #[Test]
     public function shouldKeepShortFieldValueUntouched(): void
     {
         $target = $this->createHandler(MockClient::createAlwaysReturnEmptyResponse());
@@ -341,17 +355,74 @@ class GoogleChatWebhookHandlerTest extends TestCase
     public function shouldOmitFieldsWhenFieldsExceedMaxMessageBytes(): void
     {
         $target = $this->createHandler(MockClient::createAlwaysReturnEmptyResponse());
+        // 50 fields stay within the widget limit, but 50 x 255 three-byte characters exceed the byte limit
         $context = [];
-        for ($i = 0; $i < 200; $i++) {
-            $context['field' . $i] = str_repeat('x', 255);
+        for ($i = 0; $i < 50; $i++) {
+            $context['field' . $i] = str_repeat('中', 255);
         }
 
         $payload = $target->getMessage($this->createRecord('hello', $context));
 
         $this->assertLessThanOrEqual(GoogleChatWebhookHandler::MAX_MESSAGE_BYTES, $this->encodedSize($payload));
+        $this->assertSame('<b>hello</b>', $this->titleWidget($payload)['text']);
         $widgets = $payload['cardsV2'][0]['card']['sections'][1]['widgets'];
-        $omittedNotice = $widgets[count($widgets) - 1]['textParagraph']['text'];
-        $this->assertMatchesRegularExpression('/^<i>\d+ field\(s\) omitted/', $omittedNotice);
+        $omittedNotice = array_pop($widgets)['textParagraph']['text'];
+        $this->assertSame(
+            sprintf('<i>%d field(s) omitted: card size limit exceeded</i>', 50 - count($widgets)),
+            $omittedNotice,
+        );
+        $this->assertGreaterThan(0, count($widgets));
+        $this->assertLessThan(50, count($widgets));
+    }
+
+    #[Test]
+    public function shouldShowOmittedNoticeInOwnSectionWhenAllFieldsAreOmitted(): void
+    {
+        $target = $this->createHandler(MockClient::createAlwaysReturnEmptyResponse());
+
+        // Field keys are not truncated, so this one field alone exceeds the byte limit
+        $payload = $target->getMessage($this->createRecord('hello', [str_repeat('k', 40000) => 'value']));
+
+        $this->assertLessThanOrEqual(GoogleChatWebhookHandler::MAX_MESSAGE_BYTES, $this->encodedSize($payload));
+        $sections = $payload['cardsV2'][0]['card']['sections'];
+        $this->assertCount(2, $sections);
+        $this->assertSame(
+            ['widgets' => [['textParagraph' => ['text' => '<i>1 field(s) omitted: card size limit exceeded</i>']]]],
+            $sections[1],
+        );
+    }
+
+    #[Test]
+    public function shouldKeepMessageValidUtf8WhenCutFallsInsideMultiByteCharacter(): void
+    {
+        $target = $this->createHandler(MockClient::createAlwaysReturnEmptyResponse());
+        // The leading single-byte character shifts every cut point off the three-byte character boundaries
+        $message = 'x' . str_repeat('錯', 20000);
+
+        $payload = $target->getMessage($this->createRecord($message));
+
+        $this->assertLessThanOrEqual(GoogleChatWebhookHandler::MAX_MESSAGE_BYTES, $this->encodedSize($payload));
+        $text = $this->titleWidget($payload)['text'];
+        $this->assertTrue(mb_check_encoding($text, 'UTF-8'));
+        $this->assertStringStartsWith('<b>x錯', $text);
+        $this->assertStringEndsWith('錯…(truncated)</b>', $text);
+    }
+
+    #[Test]
+    public function shouldUseTruncatedSuffixAsMessageWhenNothingElseFits(): void
+    {
+        $target = $this->createHandler(MockClient::createAlwaysReturnEmptyResponse());
+        // The channel name is shown in the card as is, so it alone exceeds the byte limit
+        $record = new LogRecord(
+            new DateTimeImmutable('2026-11-11 07:01:24'),
+            str_repeat('c', 40000),
+            Level::Error,
+            'hello',
+        );
+
+        $payload = $target->getMessage($record);
+
+        $this->assertSame('<b>…(truncated)</b>', $this->titleWidget($payload)['text']);
     }
 
     #[Test]
