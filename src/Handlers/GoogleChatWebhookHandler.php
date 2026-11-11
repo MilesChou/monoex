@@ -93,7 +93,6 @@ class GoogleChatWebhookHandler extends AbstractProcessingHandler
         private readonly string $webhookUrl,
         int|string|Level $level = Level::Debug,
         bool $bubble = true,
-        private readonly ?string $threadKey = null,
     ) {
         parent::__construct($level, $bubble);
     }
@@ -151,7 +150,7 @@ class GoogleChatWebhookHandler extends AbstractProcessingHandler
     {
         $postString = (string)json_encode($this->getMessage($record), self::JSON_FLAGS);
 
-        $request = $this->requestFactory->createRequest('POST', $this->buildRequestUrl())
+        $request = $this->requestFactory->createRequest('POST', $this->webhookUrl)
             ->withHeader('Content-Type', 'application/json; charset=UTF-8')
             ->withBody($this->streamFactory->createStream($postString));
 
@@ -191,17 +190,6 @@ class GoogleChatWebhookHandler extends AbstractProcessingHandler
         throw new RuntimeException($message);
     }
 
-    private function buildRequestUrl(): string
-    {
-        if ($this->threadKey === null) {
-            return $this->webhookUrl;
-        }
-
-        $separator = str_contains($this->webhookUrl, '?') ? '&' : '?';
-
-        return $this->webhookUrl . $separator . 'messageReplyOption=REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD';
-    }
-
     /**
      * Context and extra as [section header, key, value] in display order. Values are normalized to
      * strings and truncated to MAX_FIELD_LENGTH characters.
@@ -237,7 +225,7 @@ class GoogleChatWebhookHandler extends AbstractProcessingHandler
      */
     private function buildPayload(LogRecord $record, string $message, array $fields, int $omitted): array
     {
-        $payload = [
+        return [
             // Shown in notifications instead of the card, without adding a text line above the card
             'fallbackText' => $this->buildPreviewText($record),
             'cardsV2' => [
@@ -252,12 +240,6 @@ class GoogleChatWebhookHandler extends AbstractProcessingHandler
                 ],
             ],
         ];
-
-        if ($this->threadKey !== null) {
-            $payload['thread'] = ['threadKey' => $this->threadKey];
-        }
-
-        return $payload;
     }
 
     /**

@@ -55,7 +55,6 @@ class GoogleChatWebhookHandlerTest extends TestCase
 
         $payload = json_decode((string)$request->getBody(), true);
         $this->assertSame("\u{1F525} ERROR: hello", $payload['fallbackText']);
-        $this->assertArrayNotHasKey('thread', $payload);
 
         $card = $payload['cardsV2'][0]['card'];
         $this->assertArrayNotHasKey('header', $card);
@@ -221,22 +220,6 @@ class GoogleChatWebhookHandlerTest extends TestCase
         $sections = $payload['cardsV2'][0]['card']['sections'];
         $this->assertCount(2, $sections);
         $this->assertSame('Context', $sections[1]['header']);
-    }
-
-    #[Test]
-    public function shouldSendThreadKeyWhenConfigured(): void
-    {
-        $mockClient = MockClient::createAlwaysReturnEmptyResponse();
-        $target = $this->createHandler($mockClient, 'some-thread');
-
-        $target->handle($this->createRecord('hello'));
-
-        $request = $mockClient->requests[0];
-        $this->assertSame(
-            self::WEBHOOK_URL . '&messageReplyOption=REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD',
-            (string)$request->getUri(),
-        );
-        $this->assertSame(['threadKey' => 'some-thread'], json_decode((string)$request->getBody(), true)['thread']);
     }
 
     #[Test]
@@ -418,9 +401,9 @@ class GoogleChatWebhookHandlerTest extends TestCase
         }
     }
 
-    private function createHandler(MockClient $client, ?string $threadKey = null): GoogleChatWebhookHandler
+    private function createHandler(MockClient $client): GoogleChatWebhookHandler
     {
-        $handler = new GoogleChatWebhookHandler(self::WEBHOOK_URL, Level::Debug, true, $threadKey);
+        $handler = new GoogleChatWebhookHandler(self::WEBHOOK_URL, Level::Debug);
         $handler->setDriver($client, new RequestFactory(), new StreamFactory());
 
         return $handler;

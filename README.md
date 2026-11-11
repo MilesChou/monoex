@@ -67,8 +67,6 @@ return [
             'level' => 'error',
             // Optional. When false, a failed request throws an exception. Default: true
             'silent' => true,
-            // Optional. Messages with the same thread key are posted into the same thread. Default: null
-            'thread_key' => null,
         ],
     ],
 ];

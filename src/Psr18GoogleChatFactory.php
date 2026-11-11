@@ -35,7 +35,6 @@ class Psr18GoogleChatFactory
             $config['url'],
             $this->level($config),
             $config['bubble'] ?? true,
-            $config['thread_key'] ?? null,
         );
 
         $handler->setSilent($config['silent'] ?? true);
