@@ -8,15 +8,16 @@ use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
 use Illuminate\Events\EventServiceProvider;
 use Illuminate\Foundation\Application;
-use Illuminate\Log\Logger;
 use Illuminate\Log\LogManager;
 use Illuminate\Log\LogServiceProvider;
+use Illuminate\Log\Logger;
 use Laminas\Diactoros\RequestFactory;
 use Laminas\Diactoros\StreamFactory;
 use MilesChou\Monoex\Handlers\Psr18SlackWebhookHandler;
 use MilesChou\Monoex\Handlers\TeamsWebhookHandler;
 use MilesChou\Monoex\ServiceProvider;
 use MilesChou\Psr\Http\Client\Testing\MockClient;
+use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -41,9 +42,7 @@ class ServiceProviderTest extends TestCase
         $this->container->alias('log', LogManager::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shouldRegisterNewDriverByServiceProvider(): void
     {
         $this->container->instance(ClientInterface::class, MockClient::createAlwaysReturnEmptyResponse());
@@ -68,9 +67,7 @@ class ServiceProviderTest extends TestCase
     }
 
 
-    /**
-     * @test
-     */
+    #[Test]
     public function testRegisterTeamsDriverByServiceProvider(): void
     {
         $this->container->instance(ClientInterface::class, MockClient::createAlwaysReturnEmptyResponse());
