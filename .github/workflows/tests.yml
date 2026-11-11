@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -30,7 +30,7 @@ jobs:
           coverage: xdebug
 
       - name: Install dependencies
-        uses: nick-invision/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 5
           max_attempts: 5
@@ -43,4 +43,4 @@ jobs:
         run: php -d xdebug.mode=coverage vendor/bin/phpunit
 
       - name: Code coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
